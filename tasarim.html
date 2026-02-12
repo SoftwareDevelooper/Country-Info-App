@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body class="row">
+    <div class="border my-3 p-3 col-9 container">
+      <form class="d-flex">
+        <input type="text" name="name" id="name" class="form-control" />
+        <button type="submit" class="btn btn-primary rounded">Yükle</button>
+      </form>
+    </div>
+
+    <div class="card container col-9 cntry d-none"></div>
+
+    <div class="card container col-9 border my-3 d-none sensen">
+      <div class="card-header">Komşu Ülkeler</div>
+      <div class="row borders"></div>
+    </div>
+
+    <script>
+      const nameInput = document.querySelector("#name");
+      const form = document.querySelector("form");
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        const name = nameInput.value;
+        getApi(name);
+      });
+
+      const getApi = function (url) {
+        const request = new XMLHttpRequest();
+        request.open("GET", "https://restcountries.com/v3.1/name/" + url);
+        request.send();
+        request.addEventListener("load", function () {
+          const data = JSON.parse(this.responseText);
+          console.log(data[0]);
+          console.log(data[0].borders);
+          displayCountry(data[0]);
+
+          const countries = data[0].borders.toString();
+          const req = new XMLHttpRequest();
+          req.open(
+            "GET",
+            "https://restcountries.com/v3.1/alpha?codes=" + countries,
+          );
+          req.send();
+          req.addEventListener("load", function () {
+            const data = JSON.parse(this.responseText);
+            displayBorderes(data);
+          });
+        });
+      };
+
+      function displayCountry(arry) {
+        html = `
+        <div class="card-header">Ülkeler</div>
+        <div class="row p-4">
+        <div class="col-4">
+          <img
+            src="${arry.flags.png}"
+            alt=""
+            class="img-fluid"
+          />
+        </div>
+        <div class="col-8">
+          <h5 class="card-title">${arry.name.common}</h5>
+          <hr />
+          <div class="d-flex">
+            <ul class="list-unstyled me-5">
+              <li>Nüfus:</li>
+              <li>Resmi Dil:</li>
+              <li>Başkent:</li>
+              <li>Para Birimi:</li>
+            </ul>
+            <ul class="list-unstyled ms-5">
+              <li>${(arry.population / 1000000).toFixed(1)}</li>
+              <li>${Object.values(arry.languages)}</li>
+              <li>${arry.capital}</li>
+              <li>${Object.values(arry.currencies)[0].symbol}/${Object.keys(arry.currencies)}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+        `;
+
+        const sen = document.querySelector(".cntry");
+        sen.classList.remove("d-none");
+        sen.innerHTML = "";
+        sen.insertAdjacentHTML("beforeend", html);
+      }
+
+      function displayBorderes(bor) {
+        let html = "";
+        let sen2 = document.querySelector(".sensen");
+        sen2.classList.remove("d-none");
+        for (let country of bor) {
+          html += `
+          
+            <div class="card col-2 my-2 p-0 mx-2">
+              <img
+              src="${country.flags.png}"
+              alt=""
+              class="card-img-top"
+              height="75px"
+              />
+              <div class="card-body">
+                <h5 class="card-title">${country.name.common}</h5>
+                </div>
+                </div>
+                
+                `;
+        }
+        document.querySelector(".borders").innerHTML = html;
+      }
+    </script>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
